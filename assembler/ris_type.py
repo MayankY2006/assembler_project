@@ -32,7 +32,6 @@ def encode_r_type(instr, rd, rs1, rs2, REGISTER_MAP):
     binary = funct7 + rs2_binary + rs1_binary + funct3 + rd_binary + opcode
     return binary
 
-# I-TYPE ENCODER
 def encode_i_type(instr, rd, rs1, imm, REGISTER_MAP, to_signed_binary):
 
     funct3, opcode = I_TYPE[instr]
@@ -81,3 +80,4 @@ def encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary):
 
     else:
         raise ValueError("Unsupported instruction for R/I/S module")
+
