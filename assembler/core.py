@@ -49,7 +49,7 @@ def read_assembly_file(filepath):
 
 def first_pass(lines):
 
-
+#returns symbol_table(dictonary)
     pc = 0
     symbol_table = {}
 
@@ -76,7 +76,7 @@ def first_pass(lines):
 
 
 def second_pass(lines, symbol_table, encode_instruction):
-
+# returns list of 32 bit binary strings
 
     pc = 0
     output_binary = []
@@ -121,6 +121,7 @@ def write_output(filepath, binary_lines):
     with open(filepath, 'w') as f:
         for line in binary_lines:
             f.write(line + '\n')
+
 
 
 
