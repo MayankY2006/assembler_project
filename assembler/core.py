@@ -1,8 +1,7 @@
-
-
 import sys
 
-
+# Member 4: import error checks
+from error_handler import check_instruction, check_register
 
 
 REGISTER_MAP = {
@@ -18,8 +17,6 @@ REGISTER_MAP = {
 }
 
 
-
-
 def to_signed_binary(value, bits):
     """
     Converts integer to signed binary of given bit width.
@@ -33,8 +30,6 @@ def to_signed_binary(value, bits):
     return binary[-bits:]
 
 
-
-
 def read_assembly_file(filepath):
     """
     Reads assembly file and returns list of lines.
@@ -43,8 +38,6 @@ def read_assembly_file(filepath):
         lines = f.readlines()
 
     return [line.strip() for line in lines]
-
-
 
 
 def first_pass(lines):
@@ -103,6 +96,14 @@ def second_pass(lines, symbol_table, encode_instruction):
         instr = tokens[0]
         operands = tokens[1:]
 
+        # Member 4 validation
+        line_no = pc // 4 + 1
+        check_instruction(instr, line_no)
+
+        for op in operands:
+            if op in REGISTER_MAP:
+                check_register(op, line_no, REGISTER_MAP)
+
         binary = encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary)
 
         output_binary.append(binary)
@@ -113,7 +114,6 @@ def second_pass(lines, symbol_table, encode_instruction):
 
 
 
-
 def write_output(filepath, binary_lines):
     """
     Writes binary instructions to output file.
@@ -121,8 +121,3 @@ def write_output(filepath, binary_lines):
     with open(filepath, 'w') as f:
         for line in binary_lines:
             f.write(line + '\n')
-
-
-
-
-

@@ -1,3 +1,6 @@
+import sys
+from core import read_assembly_file, first_pass, second_pass, write_output
+
 def main():
     """
     Main assembler execution flow.
@@ -15,7 +18,7 @@ def main():
     symbol_table = first_pass(lines)
 
     # Import encoding dispatcher here (after team integration)
-    from r_i_s import encode_instruction
+    from ris_type import encode_instruction
 
     binary_output = second_pass(lines, symbol_table, encode_instruction)
 
