@@ -1,3 +1,5 @@
+from branch_jump import encode_branch, encode_jal
+
 R_TYPE = {
     "add":  ("0000000", "000", "0110011"),
     "sub":  ("0100000", "000", "0110011"),
@@ -29,8 +31,8 @@ def encode_r_type(instr, rd, rs1, rs2, REGISTER_MAP):
     rs1_binary = REGISTER_MAP[rs1]
     rs2_binary = REGISTER_MAP[rs2]
 
-    binary = funct7 + rs2_binary + rs1_binary + funct3 + rd_binary + opcode
-    return binary
+    return funct7 + rs2_binary + rs1_binary + funct3 + rd_binary + opcode
+
 
 def encode_i_type(instr, rd, rs1, imm, REGISTER_MAP, to_signed_binary):
 
@@ -41,8 +43,7 @@ def encode_i_type(instr, rd, rs1, imm, REGISTER_MAP, to_signed_binary):
 
     imm_binary = to_signed_binary(imm, 12)
 
-    binary = imm_binary + rs1_binary + funct3 + rd_binary + opcode
-    return binary
+    return imm_binary + rs1_binary + funct3 + rd_binary + opcode
 
 
 def encode_s_type(instr, rs2, rs1, imm, REGISTER_MAP, to_signed_binary):
@@ -54,11 +55,10 @@ def encode_s_type(instr, rs2, rs1, imm, REGISTER_MAP, to_signed_binary):
 
     imm_binary = to_signed_binary(imm, 12)
 
-    imm_high = imm_binary[:7]   # imm[11:5]
-    imm_low  = imm_binary[7:]   # imm[4:0]
+    imm_high = imm_binary[:7]
+    imm_low  = imm_binary[7:]
 
-    binary = imm_high + rs2_binary + rs1_binary + funct3 + imm_low + opcode
-    return binary
+    return imm_high + rs2_binary + rs1_binary + funct3 + imm_low + opcode
 
 
 def encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary):
@@ -78,6 +78,14 @@ def encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary):
         rs2, imm, rs1 = operands
         return encode_s_type(instr, rs2, rs1, int(imm), REGISTER_MAP, to_signed_binary)
 
+    elif instr in ["beq","bne","blt","bge","bltu","bgeu"]:
+        rs1, rs2, imm = operands
+        return encode_branch(instr, rs1, rs2, int(imm), REGISTER_MAP, to_signed_binary)
+
+    elif instr == "jal":
+        rd, imm = operands
+        return encode_jal(rd, int(imm), REGISTER_MAP, to_signed_binary)
+
     else:
-        raise ValueError("Unsupported instruction for R/I/S module")
+        raise ValueError("Unsupported instruction")
 
