@@ -1,8 +1,6 @@
-import sys
+# core.py
 
-# Member 4: import error checks
 from error_handler import check_instruction, check_register
-
 
 REGISTER_MAP = {
     "zero": "00000", "ra": "00001", "sp": "00010", "gp": "00011",
@@ -26,7 +24,6 @@ def to_signed_binary(value, bits):
 
     binary = format(value, f'0{bits}b')
 
-    # Truncate if overflow (Member 4 should check bounds)
     return binary[-bits:]
 
 
@@ -41,35 +38,34 @@ def read_assembly_file(filepath):
 
 
 def first_pass(lines):
+    """
+    Builds symbol table from labels.
+    """
 
-#returns symbol_table(dictonary)
     pc = 0
     symbol_table = {}
 
     for line in lines:
 
-        # Ignore empty lines
         if not line:
             continue
 
-        # If label exists
         if ':' in line:
             label = line.split(':')[0].strip()
             symbol_table[label] = pc
 
-            # If label-only line, don't increment PC
             if line.endswith(':'):
                 continue
 
-        # Every instruction increases PC by 4
         pc += 4
 
     return symbol_table
 
 
-
 def second_pass(lines, symbol_table, encode_instruction):
-# returns list of 32 bit binary strings
+    """
+    Converts assembly instructions to binary.
+    """
 
     pc = 0
     output_binary = []
@@ -90,21 +86,34 @@ def second_pass(lines, symbol_table, encode_instruction):
         if not line:
             continue
 
-        # Basic parsing (Member 4 will improve validation)
-        tokens = line.replace(',', ' ').replace('(', ' ').replace(')', ' ').split()
+        tokens = line.replace(',', ' ') \
+                     .replace('(', ' ') \
+                     .replace(')', ' ') \
+                     .split()
 
         instr = tokens[0]
         operands = tokens[1:]
 
-        # Member 4 validation
         line_no = pc // 4 + 1
+
+        # Instruction validation
         check_instruction(instr, line_no)
 
+        # Register validation
         for op in operands:
-            if op in REGISTER_MAP:
+            if op.isalpha():
                 check_register(op, line_no, REGISTER_MAP)
 
-        binary = encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary)
+        # Encoding
+        try:
+            binary = encode_instruction(
+                instr,
+                operands,
+                REGISTER_MAP,
+                to_signed_binary
+            )
+        except Exception as e:
+            raise Exception(f"Error at line {line_no}: {e}")
 
         output_binary.append(binary)
 
@@ -113,11 +122,11 @@ def second_pass(lines, symbol_table, encode_instruction):
     return output_binary
 
 
-
 def write_output(filepath, binary_lines):
     """
     Writes binary instructions to output file.
     """
+
     with open(filepath, 'w') as f:
         for line in binary_lines:
             f.write(line + '\n')
