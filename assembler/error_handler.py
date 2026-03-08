@@ -49,25 +49,28 @@ def check_immediate(value, bits, line_no):
 # Check if virtual halt instruction exists and is last line
 def check_virtual_halt(lines):
 
-    halt = "beqzero,zero,0"
-
-    cleaned_lines = []
+    halt_found = False
 
     for line in lines:
 
         # remove spaces
-        l = line.replace(" ", "").strip()
+        cleaned = line.replace(" ", "").strip()
 
-        # ignore empty lines
-        if l == "":
-            continue
+        if cleaned == "beqzero,zero,0":
+            halt_found = True
 
-        cleaned_lines.append(l)
-
-    # Ensure halt instruction exists
-    if halt not in cleaned_lines:
+    if not halt_found:
         raise Exception("Error: Missing Virtual Halt instruction")
 
-    # Ensure halt is last instruction
-    if cleaned_lines[-1] != halt:
-        raise Exception("Error: Virtual Halt must be the last instruction")
+    # check last instruction
+    for line in reversed(lines):
+
+        cleaned = line.replace(" ", "").strip()
+
+        if cleaned == "":
+            continue
+
+        if cleaned != "beqzero,zero,0":
+            raise Exception("Error: Virtual Halt must be the last instruction")
+
+        break
