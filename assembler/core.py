@@ -65,10 +65,9 @@ def second_pass(lines, symbol_table, encode_instruction):
         operands = tokens[1:]
         line_no = pc // 4 + 1
         check_instruction(instr, line_no)
-        
-        for op in operands:
-            if op.isalpha():
-                check_register(op, line_no, REGISTER_MAP)
+for op in operands:
+    if op in REGISTER_MAP:
+        check_register(op, line_no, REGISTER_MAP)
         try:
             binary = encode_instruction(
                 instr,
@@ -88,3 +87,4 @@ def write_output(filepath, binary_lines):
     with open(filepath, 'w') as f:
         for line in binary_lines:
             f.write(line + '\n')
+
