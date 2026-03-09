@@ -23,6 +23,24 @@ I_TYPE = {
 S_TYPE = {
     "sw": ("010", "0100011"),
 }
+U_TYPE = {
+    "lui":   "0110111",
+    "auipc": "0010111",
+}
+def encode_u_type(instr, rd, imm, REGISTER_MAP, to_signed_binary):
+
+    if rd not in REGISTER_MAP:
+        raise Exception(f"Invalid register '{rd}'")
+
+    opcode = U_TYPE[instr]
+
+    rd_binary = REGISTER_MAP[rd]
+
+    imm_binary = to_signed_binary(imm, 32)
+
+    imm_upper = imm_binary[:20]
+
+    return imm_upper + rd_binary + opcode
 
 def encode_r_type(instr, rd, rs1, rs2, REGISTER_MAP):
 
@@ -89,6 +107,14 @@ def encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary):
         imm = int(imm)
         check_immediate(imm, 13, 0)
         return encode_branch(instr, rs1, rs2, imm, REGISTER_MAP, to_signed_binary)
+    elif instr in U_TYPE:
+
+        if len(operands) != 2:
+            raise Exception(f"{instr} requires 2 operands")
+        rd, imm = operands
+        imm = int(imm)
+        check_immediate(imm, 32, 0)
+        return encode_u_type(instr, rd, imm, REGISTER_MAP, to_signed_binary)
 
     elif instr == "jal":
         if len(operands) != 2:
@@ -100,4 +126,5 @@ def encode_instruction(instr, operands, REGISTER_MAP, to_signed_binary):
 
     else:
         raise Exception(f"Unsupported instruction '{instr}'")
+
 
